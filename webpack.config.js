@@ -2,7 +2,7 @@ import path from 'path';
 
 
 const config = {
-    entry: './src/engine.ts',
+    entry: './src/page.ts',
     output: {
         filename: 'bundle.js',
         path: path.resolve('./src/public'),
