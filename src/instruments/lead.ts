@@ -1,4 +1,4 @@
 import { BaseInstrument } from "../base-instrument";
 
 export const leadInstrument = new BaseInstrument()
-leadInstrument.constructMelody(['new', 'new', 'use1', 'new'])
+leadInstrument.constructMelody(['new', 'use1', 'use1', 'new'])

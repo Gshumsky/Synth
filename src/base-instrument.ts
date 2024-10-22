@@ -65,13 +65,14 @@ private generateRandomMelody = (notes: (string|null)[])=>{
 }
 
 private updateMelody = (barsList: any)=>{
-    (this.updateMelody as any).counter = ((this.updateMelody as any).counter>=barsList.length-1)?0:((this.updateMelody as any).counter || 0) + 1;
-    
+    (this.updateMelody as any).counter = (this.updateMelody as any).counter || 0
     const newMelodyNotes = barsList[(this.updateMelody as any).counter];
     this.melodyPart.clear();
     newMelodyNotes.forEach((note: any) => {
         this.melodyPart.add(note);
     });
+    (this.updateMelody as any).counter = ((this.updateMelody as any).counter>=barsList.length-1)?0:((this.updateMelody as any).counter) + 1;
+
 }
 
 //[new, use1, new, use3]
@@ -86,7 +87,7 @@ public constructMelody = (barTypes: string[])=>{
     Tone.Transport.scheduleRepeat(() => {
         console.log(barsList)
     this.updateMelody(barsList);
-}, ONE_MEASURE);
+}, ONE_MEASURE, '3');
 }
 }
 
