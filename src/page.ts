@@ -4,7 +4,8 @@ import "./instruments/lead"
 const startMusic = async () => {
     await Tone.start();
     console.log('Audio context started');
-    Tone.Transport.start();
+    const transport = Tone.getTransport()
+    transport.start();
 };
 
 

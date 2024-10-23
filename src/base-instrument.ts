@@ -1,16 +1,19 @@
 import * as Tone from "tone";
-import { Note } from "./types";
+import { Bar, BarTypes, GetRandomNote, Note } from "./types";
 import { getRandomItem } from "./utils";
-import { EIGHTH, ONE_MEASURE, QUARTER, SIXTEENTH } from "./constants";
+import { BAR_LENGTH, DEFAULT_BPM, EIGHTH, ONE_MEASURE, QUARTER, SIXTEENTH } from "./constants";
+import { Gain, Part, Synth } from "tone";
+import { TransportClass } from "tone/build/esm/core/clock/Transport";
 
 
 export class BaseInstrument{
-    private gain: any;
-    private melodySynth: any;
-    private melodyPart: any;
+    private gain: Gain;
+    private melodySynth: Synth;
+    private melodyPart: Part;
+    private transport: TransportClass;
     constructor(){
+        this.transport = Tone.getTransport()
         this.gain = new Tone.Gain(0.2).toDestination();
-
         this.melodySynth = new Tone.Synth({
             oscillator: {
                 type: 'sine'
@@ -24,16 +27,15 @@ export class BaseInstrument{
         }).connect(this.gain);
 
         this.melodyPart = new Tone.Part((time, note) => {
-            this.melodySynth.triggerAttackRelease(note.note, note.duration, time);
-        }, [] as any).start(0);
+            this.melodySynth.triggerAttackRelease(note.note as string, note.duration, time);
+        }, [] as Bar).start(0);
         
         this.melodyPart.loop = true;
         this.melodyPart.loopEnd = ONE_MEASURE;
-        Tone.Transport.bpm.value = 120;
+        this.transport.bpm.value = DEFAULT_BPM;
     }
 
-private getRandomNote = (notes: (string|null)[],
-     time: string, duration:string)=>{
+private getRandomNote: GetRandomNote = (notes, time, duration)=>{
     return {
                 time: time,
                 note: getRandomItem(notes),
@@ -42,53 +44,49 @@ private getRandomNote = (notes: (string|null)[],
 }
 
 private generateRandomMelody = (notes: (string|null)[])=>{
-    let newMelody: Note[] = [];
-    for (let quarter = 0; quarter < 5;) {
-        let currentTime = `0:${quarter}`
+    let newMelody: Bar = [];
+    for (let noteStartTime = 0; noteStartTime <= BAR_LENGTH;) {
+        let currentTime = `0:${noteStartTime}`
         const duration = getRandomItem([QUARTER,EIGHTH,SIXTEENTH])
         newMelody.push(
             this.getRandomNote(notes, currentTime, duration),
         );
         switch (duration){
             case QUARTER:
-                quarter++
+                noteStartTime++
                 break;
             case EIGHTH:
-                quarter+=0.5
+                noteStartTime+=0.5
                 break;
             case SIXTEENTH:
-                quarter+=0.25
+                noteStartTime+=0.25
                 break;
         }
     }
     return newMelody;
 }
 
-private updateMelody = (barsList: any)=>{
-    (this.updateMelody as any).counter = (this.updateMelody as any).counter || 0
-    const newMelodyNotes = barsList[(this.updateMelody as any).counter];
+private updateCurrentPart = ((bar: Bar)=>{
     this.melodyPart.clear();
-    newMelodyNotes.forEach((note: any) => {
+    bar.forEach((note: Note) => {
         this.melodyPart.add(note);
     });
-    (this.updateMelody as any).counter = ((this.updateMelody as any).counter>=barsList.length-1)?0:((this.updateMelody as any).counter) + 1;
+})
 
-}
-
-//[new, use1, new, use3]
-public constructMelody = (barTypes: string[])=>{
-    let barsList: any = []
+public constructBarsSequence = (barTypes: BarTypes[])=>{
+    let barsList: Bar[] = []
     barTypes.forEach(
         (instruction: string)=>{
             const bar = (instruction == "new")?this.generateRandomMelody(["C4", "D4", "E4", "G4", "A4", null]):barsList[Number(instruction.slice(-1))-1]
             barsList.push(bar)
         }, []
     )
-    Tone.Transport.scheduleRepeat(() => {
-        console.log(barsList)
-    this.updateMelody(barsList);
-}, ONE_MEASURE, '3');
-}
-}
 
-export default Tone;
+    let barCounter = 0
+    Tone.Transport.scheduleRepeat(() => {
+        this.updateCurrentPart(barsList[barCounter]);
+        barCounter = (barCounter>=barsList.length-1)?0:barCounter + 1;
+
+    }, ONE_MEASURE, '1');
+}
+}
