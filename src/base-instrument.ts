@@ -22,7 +22,7 @@ import { TransportClass } from "tone/build/esm/core/clock/Transport";
 
 export class BaseInstrument {
   private gain: Gain;
-  private melodySynth: Synth;
+  public synth: Synth;
   private melodyPart: Part;
   private transport: TransportClass;
   private notes: (string | null)[];
@@ -32,7 +32,7 @@ export class BaseInstrument {
     this.durations = instrumentProps.durations;
     this.transport = Tone.getTransport();
     this.gain = new Tone.Gain(instrumentProps.gain).toDestination();
-    this.melodySynth = new Tone.Synth({
+    this.synth = new Tone.Synth({
       oscillator: {
         type: instrumentProps.oscillatorType,
       },
@@ -40,11 +40,7 @@ export class BaseInstrument {
     }).connect(this.gain);
 
     this.melodyPart = new Tone.Part((time, note) => {
-      this.melodySynth.triggerAttackRelease(
-        note.note as string,
-        note.duration,
-        time
-      );
+      this.synth.triggerAttackRelease(note.note as string, note.duration, time);
     }, [] as Bar).start(0);
 
     this.melodyPart.loop = true;
