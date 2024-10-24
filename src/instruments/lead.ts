@@ -16,4 +16,4 @@ const instrumentProps: InstrumentProps = {
 };
 
 export const leadInstrument = new BaseInstrument(instrumentProps);
-leadInstrument.constructBarsSequence(["new", "use_0", "use_0", "new"]);
+leadInstrument.startPart(["new", "use_0", "use_0", "new"]);

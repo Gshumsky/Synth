@@ -12,6 +12,7 @@ import {
   BAR_LENGTH,
   DEFAULT_BPM,
   EIGHTH,
+  FOUR_MEASURES,
   ONE_MEASURE,
   QUARTER,
   SIXTEENTH,
@@ -87,24 +88,30 @@ export class BaseInstrument {
     });
   };
 
-  public constructBarsSequence = (barTypes: BarTypes[]) => {
-    let barsList: Bar[] = [];
-    barTypes.forEach((instruction: string) => {
+  private generateBarsList = (barTypes: BarTypes[]) => {
+    return barTypes.reduce((acc: Bar[], instruction: string) => {
       const bar =
         instruction == "new"
           ? this.generateRandomMelody(this.notes)
-          : barsList[getIndexFromString(instruction)];
-      barsList.push(bar);
+          : acc[getIndexFromString(instruction)];
+      return [...acc, bar];
     }, []);
+  };
 
+  public startPart = (barTypes: BarTypes[]) => {
+    let barsList: Bar[] = this.generateBarsList(barTypes);
     let barCounter = 0;
-    Tone.Transport.scheduleRepeat(
+
+    this.transport.scheduleRepeat(() => {
+      this.updateCurrentPart(barsList[barCounter]);
+      barCounter = barCounter >= barsList.length - 1 ? 0 : barCounter + 1;
+    }, ONE_MEASURE);
+    this.transport.scheduleRepeat(
       () => {
-        this.updateCurrentPart(barsList[barCounter]);
-        barCounter = barCounter >= barsList.length - 1 ? 0 : barCounter + 1;
+        barsList = this.generateBarsList(barTypes);
       },
-      ONE_MEASURE,
-      "1"
+      "8m",
+      "8m"
     );
   };
 }
