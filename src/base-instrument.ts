@@ -1,6 +1,6 @@
 import * as Tone from "tone";
-import { Bar, BarTypes, GetRandomNote, Note } from "./types";
-import { getRandomItem } from "./utils";
+import { Bar, BarTypes, GetRandomNote, InstrumentProps, Note } from "./types";
+import { getIndexFromString, getRandomItem } from "./utils";
 import { BAR_LENGTH, DEFAULT_BPM, EIGHTH, ONE_MEASURE, QUARTER, SIXTEENTH } from "./constants";
 import { Gain, Part, Synth } from "tone";
 import { TransportClass } from "tone/build/esm/core/clock/Transport";
@@ -11,19 +11,16 @@ export class BaseInstrument{
     private melodySynth: Synth;
     private melodyPart: Part;
     private transport: TransportClass;
-    constructor(){
+    private notes: (string|null)[];
+    constructor(instrumentProps: InstrumentProps){
+        this.notes = instrumentProps.notes
         this.transport = Tone.getTransport()
-        this.gain = new Tone.Gain(0.2).toDestination();
+        this.gain = new Tone.Gain(instrumentProps.gain).toDestination();
         this.melodySynth = new Tone.Synth({
             oscillator: {
-                type: 'sine'
+                type: instrumentProps.oscillatorType
             },
-            envelope: {
-                attack: 0.1,
-                decay: 0.3,
-                sustain: 0.4,
-                release: 0.7
-            }
+            envelope: instrumentProps.envelope
         }).connect(this.gain);
 
         this.melodyPart = new Tone.Part((time, note) => {
@@ -77,7 +74,7 @@ public constructBarsSequence = (barTypes: BarTypes[])=>{
     let barsList: Bar[] = []
     barTypes.forEach(
         (instruction: string)=>{
-            const bar = (instruction == "new")?this.generateRandomMelody(["C4", "D4", "E4", "G4", "A4", null]):barsList[Number(instruction.slice(-1))-1]
+            const bar = (instruction == "new")?this.generateRandomMelody(this.notes):barsList[getIndexFromString(instruction)]
             barsList.push(bar)
         }, []
     )
