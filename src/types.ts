@@ -1,36 +1,39 @@
 export type Note = {
-    time: string;
-    note: string|null;
-    duration: string;
-}
-export type Bar = Note[]
+  time: string;
+  note: string | null;
+  duration: string;
+};
+export type Bar = Note[];
 
-export type GetRandomNote = (notes: (string|null)[],
-time: string, duration:string) => Note
+export type GetRandomNote = (
+  notes: (string | null)[],
+  time: string,
+  duration: string
+) => Note;
 
-
-
-type NumberRange<N extends number, Result extends unknown[] = []> = 
-  Result['length'] extends N 
-    ? Result[number] 
-    : NumberRange<N, [...Result, Result['length']]>;
+type NumberRange<
+  N extends number,
+  Result extends unknown[] = [],
+> = Result["length"] extends N
+  ? Result[number]
+  : NumberRange<N, [...Result, Result["length"]]>;
 
 type CopyNumbers = `use_${NumberRange<100>}`;
 
 export type BarTypes = "new" | CopyNumbers;
 
 export type Envelope = {
-  attack: number,
-  decay: number,
-  sustain: number,
-  release: number
-}
+  attack: number;
+  decay: number;
+  sustain: number;
+  release: number;
+};
 
-export type Durations = ("2n" | "4n" | "8n" | "16n")[]
+export type Durations = ("2n" | "4n" | "8n" | "16n")[];
 
 export type InstrumentProps = {
-  gain: number,
-    oscillatorType: 
+  gain: number;
+  oscillatorType:
     | "fatsine"
     | "fatsquare"
     | "fatsawtooth"
@@ -47,13 +50,13 @@ export type InstrumentProps = {
     | "amtriangle"
     | "amcustom"
     | "custom"
-    | "sawtooth" 
-    | "sine" 
+    | "sawtooth"
+    | "sine"
     | "square"
     | "triangle"
     | "pulse"
-    | "pwm",
-    envelope: Envelope,
-    notes: (string|null)[],
-    durations: Durations
-}
+    | "pwm";
+  envelope: Envelope;
+  notes: (string | null)[];
+  durations: Durations;
+};
