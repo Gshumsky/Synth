@@ -1,4 +1,5 @@
 import { BaseInstrument } from "../base-instrument";
+import { EIGHTH, QUARTER, SIXTEENTH } from "../constants";
 import { InstrumentProps } from "../types";
 
 const instrumentProps: InstrumentProps = {
@@ -11,6 +12,7 @@ const instrumentProps: InstrumentProps = {
         release: 0.7
     },
     notes: ["C4", "D4", "E4", "G4", "A4", null],
+    durations: [QUARTER,EIGHTH,SIXTEENTH]
 }
 
 export const leadInstrument = new BaseInstrument(instrumentProps)

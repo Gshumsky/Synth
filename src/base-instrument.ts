@@ -1,5 +1,5 @@
 import * as Tone from "tone";
-import { Bar, BarTypes, GetRandomNote, InstrumentProps, Note } from "./types";
+import { Bar, BarTypes, Durations, GetRandomNote, InstrumentProps, Note } from "./types";
 import { getIndexFromString, getRandomItem } from "./utils";
 import { BAR_LENGTH, DEFAULT_BPM, EIGHTH, ONE_MEASURE, QUARTER, SIXTEENTH } from "./constants";
 import { Gain, Part, Synth } from "tone";
@@ -12,8 +12,10 @@ export class BaseInstrument{
     private melodyPart: Part;
     private transport: TransportClass;
     private notes: (string|null)[];
+    private durations: Durations;
     constructor(instrumentProps: InstrumentProps){
         this.notes = instrumentProps.notes
+        this.durations = instrumentProps.durations
         this.transport = Tone.getTransport()
         this.gain = new Tone.Gain(instrumentProps.gain).toDestination();
         this.melodySynth = new Tone.Synth({
@@ -44,7 +46,7 @@ private generateRandomMelody = (notes: (string|null)[])=>{
     let newMelody: Bar = [];
     for (let noteStartTime = 0; noteStartTime <= BAR_LENGTH;) {
         let currentTime = `0:${noteStartTime}`
-        const duration = getRandomItem([QUARTER,EIGHTH,SIXTEENTH])
+        const duration = getRandomItem(this.durations)
         newMelody.push(
             this.getRandomNote(notes, currentTime, duration),
         );

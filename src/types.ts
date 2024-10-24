@@ -26,6 +26,8 @@ export type Envelope = {
   release: number
 }
 
+export type Durations = ("2n" | "4n" | "8n" | "16n")[]
+
 export type InstrumentProps = {
   gain: number,
     oscillatorType: 
@@ -53,4 +55,5 @@ export type InstrumentProps = {
     | "pwm",
     envelope: Envelope,
     notes: (string|null)[],
+    durations: Durations
 }
