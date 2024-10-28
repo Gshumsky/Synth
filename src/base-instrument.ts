@@ -60,7 +60,7 @@ export class BaseInstrument {
 
   private generateRandomMelody = (notes: (string | null)[]) => {
     let newMelody: Bar = [];
-    for (let noteStartTime = 0; noteStartTime <= BAR_LENGTH; ) {
+    for (let noteStartTime = 0; noteStartTime < BAR_LENGTH; ) {
       let currentTime = `0:${noteStartTime}`;
       const duration = getRandomItem(this.durations);
       newMelody.push(this.getRandomNote(notes, currentTime, duration));
@@ -69,13 +69,14 @@ export class BaseInstrument {
           noteStartTime++;
           break;
         case EIGHTH:
-          noteStartTime += 0.5;
+          noteStartTime += 0.499;
           break;
         case SIXTEENTH:
           noteStartTime += 0.25;
           break;
       }
     }
+    console.log(`Melody is ${newMelody}`)
     return newMelody;
   };
 
