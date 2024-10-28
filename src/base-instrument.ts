@@ -7,12 +7,11 @@ import {
   InstrumentProps,
   Note,
 } from "./types";
-import { getIndexFromString, getRandomItem } from "./utils";
+import { getIndexFromString, getRandomElements, getRandomItem } from "./utils";
 import {
   BAR_LENGTH,
   DEFAULT_BPM,
   EIGHTH,
-  FOUR_MEASURES,
   ONE_MEASURE,
   QUARTER,
   SIXTEENTH,
@@ -23,11 +22,13 @@ import { TransportClass } from "tone/build/esm/core/clock/Transport";
 export class BaseInstrument {
   private gain: Gain;
   public synth: Synth;
+  private connectedEffects: any;
   private melodyPart: Part;
   private transport: TransportClass;
   private notes: (string | null)[];
   private durations: Durations;
   constructor(instrumentProps: InstrumentProps) {
+    this.connectedEffects = []
     this.notes = instrumentProps.notes;
     this.durations = instrumentProps.durations;
     this.transport = Tone.getTransport();
@@ -37,7 +38,7 @@ export class BaseInstrument {
         type: instrumentProps.oscillatorType,
       },
       envelope: instrumentProps.envelope,
-    }).connect(this.gain);
+    });
 
     this.melodyPart = new Tone.Part((time, note) => {
       this.synth.triggerAttackRelease(note.note as string, note.duration, time);
@@ -47,6 +48,7 @@ export class BaseInstrument {
     this.melodyPart.loopEnd = ONE_MEASURE;
     this.transport.bpm.value = DEFAULT_BPM;
   }
+///////////////////////////////MELODY//////////////////////////////////
 
   private getRandomNote: GetRandomNote = (notes, time, duration) => {
     return {
@@ -94,20 +96,57 @@ export class BaseInstrument {
     }, []);
   };
 
-  public startPart = (barTypes: BarTypes[]) => {
+/////////////////////////////////EFFECTS///////////////////////////////////
+
+  public connectEffects = (effectsList: object[]) => {
+    effectsList.push(this.gain);
+    effectsList.reduce((chain: any, effect: object) => {
+      console.log(`connecting ${chain} to ${effect}`);
+      chain.connect(effect);
+      this.connectedEffects.push(effect);
+      return effect;
+    }, this.synth);
+  };
+
+  public enableRandomEffects = (quantity: number) => {
+    const effectsToEdit = this.connectedEffects.filter((item: any) => !(item instanceof Tone.Gain))
+    effectsToEdit.forEach((effect: any)=>effect.set({ wet: 0 }))
+    const randomEffects = getRandomElements<object>(effectsToEdit, quantity);
+    console.log(`chosen effects: ${randomEffects}`);
+    randomEffects.forEach((effect: any)=>effect.set({ wet: Math.random() }))
+  };
+
+  public disconnectAllEffects = () => {
+    this.connectedEffects.forEach((effect: any) => {
+      effect.disconnect();
+    });
+  };
+
+  /////////////////////////////////SCHEDULES///////////////////////////////////
+
+  public startPart = (barTypes: BarTypes[], effectsList: object[], effectsQuantity: number) => {
     let barsList: Bar[] = this.generateBarsList(barTypes);
     let barCounter = 0;
+    this.connectEffects(effectsList)
 
     this.transport.scheduleRepeat(() => {
       this.updateCurrentPart(barsList[barCounter]);
       barCounter = barCounter >= barsList.length - 1 ? 0 : barCounter + 1;
     }, ONE_MEASURE);
+
     this.transport.scheduleRepeat(
       () => {
         barsList = this.generateBarsList(barTypes);
       },
       "8m",
       "8m"
+    );
+
+    this.transport.scheduleRepeat(
+      () => {
+        this.enableRandomEffects(effectsQuantity)
+      },
+      "8m",
     );
   };
 }
