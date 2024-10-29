@@ -1,15 +1,8 @@
 import * as Tone from "tone";
 import { Gain, Part, Synth } from "tone";
 import { TransportClass } from "tone/build/esm/core/clock/Transport";
-import {
-  DEFAULT_BPM,
-  ONE_MEASURE
-} from "./constants";
-import {
-  Bar,
-  Durations,
-  InstrumentProps
-} from "./types";
+import { DEFAULT_BPM, ONE_MEASURE } from "./constants";
+import { Bar, Durations, InstrumentProps } from "./types";
 
 export class BaseInstrument {
   protected gain: Gain;
