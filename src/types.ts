@@ -60,3 +60,10 @@ export type InstrumentProps = {
   notes: (string | null)[];
   durations: Durations;
 };
+
+export type InstrumentConstructor<T> = new (...args: any[]) => T & {
+  generateBarsList: (barTypes: BarTypes[]) => Bar[];
+  connectEffects: (effectsList: object[]) => void;
+  updateCurrentPart: (bar: Bar) => void;
+  enableRandomEffects: (quantity: number) => void;
+};
