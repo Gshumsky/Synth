@@ -6,11 +6,11 @@ import { Bar, Durations, InstrumentProps } from "./types";
 import * as generators from './generators'
 
 export class BaseInstrument {
-  protected gain: Gain;
+  public gain: Gain;
   public synth: Synth;
   protected connectedEffects: any;
   protected melodyPart: Part;
-  protected transport: TransportClass;
+  public transport: TransportClass;
   protected notes: (string | null)[];
   protected durations: Durations;
   constructor(instrumentProps: InstrumentProps) {
