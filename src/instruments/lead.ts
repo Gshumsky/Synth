@@ -1,9 +1,6 @@
 import * as Tone from "tone";
 import { BaseInstrument } from "../base-instrument";
 import { EIGHTH, QUARTER, SIXTEENTH } from "../constants";
-import { EffectsGenerator } from "../effects-generator";
-import { MelodyGenerator } from "../melody-generator";
-import { Scheduler } from "../schedulers";
 import { InstrumentProps } from "../types";
 
 const leadProps: InstrumentProps = {
@@ -32,11 +29,7 @@ const bassProps: InstrumentProps = {
   durations: [EIGHTH],
 };
 
-const combinedClass = MelodyGenerator(
-  EffectsGenerator(Scheduler(BaseInstrument))
-);
-
-const leadInstrument = new combinedClass(leadProps);
+const leadInstrument = new BaseInstrument(leadProps);
 const distortion = new Tone.Distortion(0.5);
 const reverb = new Tone.Reverb({
   decay: 5,
@@ -52,7 +45,7 @@ leadInstrument.startPart(
   2
 );
 
-export const bassInstrument = new combinedClass(bassProps);
+export const bassInstrument = new BaseInstrument(bassProps);
 const bassDistortion = new Tone.Distortion(0.5);
 const bassFrequencyShifter = new Tone.FrequencyShifter(42);
 bassInstrument.startPart(
